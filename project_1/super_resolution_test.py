@@ -184,8 +184,8 @@ for i in range(1, 101):
   image_generated = cv2.imread(filename_path_generated, cv2.COLOR_BGR2RGB)
   image_baseline = cv2.resize(image_lr, (256, 256), interpolation = cv2.INTER_CUBIC)
 
-  sne_model.append(mean_squared_error(image_org, image_generated))
-  sne_baseline.append(mean_squared_error(image_org, image_baseline))
+  sne_model.append(mean_squared_error(image_org, image_generated) * (256 ** 2)) 
+  sne_baseline.append(mean_squared_error(image_org, image_baseline) * (256 ** 2))
 
   psnr_model.append(peak_signal_noise_ratio(image_org, image_generated))
   psnr_baseline.append(peak_signal_noise_ratio(image_org, image_baseline))
