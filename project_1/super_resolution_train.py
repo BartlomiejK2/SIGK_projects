@@ -37,13 +37,13 @@ def generate_resized_images(path: str, images_num: tuple, width: int, height: in
     new_filename_path = output_path + number + ".png"
     cv2.imwrite(new_filename_path, resized_image)
 
-# # Obrazy dla zbioru trenującego
-generate_resized_images(TRAIN_DATASET_PATH, TRAIN_INDEXES, LOW_RESOLUTION_WIDTH, LOW_RESOLUTION_HEIGHT, DATASET_LOW_RESOLUTION_PATH + "train/")
-generate_resized_images(TRAIN_DATASET_PATH, TRAIN_INDEXES, 256, 256, DATASET_HIGH_RESOLUTION_PATH + "train/")
+# # # Obrazy dla zbioru trenującego
+# generate_resized_images(TRAIN_DATASET_PATH, TRAIN_INDEXES, LOW_RESOLUTION_WIDTH, LOW_RESOLUTION_HEIGHT, DATASET_LOW_RESOLUTION_PATH + "train/")
+# generate_resized_images(TRAIN_DATASET_PATH, TRAIN_INDEXES, 256, 256, DATASET_HIGH_RESOLUTION_PATH + "train/")
 
-# Obrazy dla zbioru walidacyjnego
-generate_resized_images(VALID_DATASET_PATH, VALID_INDEXES, LOW_RESOLUTION_WIDTH, LOW_RESOLUTION_HEIGHT, DATASET_LOW_RESOLUTION_PATH + "valid/")
-generate_resized_images(VALID_DATASET_PATH, VALID_INDEXES, 256, 256, DATASET_HIGH_RESOLUTION_PATH + "valid/")
+# # Obrazy dla zbioru walidacyjnego
+# generate_resized_images(VALID_DATASET_PATH, VALID_INDEXES, LOW_RESOLUTION_WIDTH, LOW_RESOLUTION_HEIGHT, DATASET_LOW_RESOLUTION_PATH + "valid/")
+# generate_resized_images(VALID_DATASET_PATH, VALID_INDEXES, 256, 256, DATASET_HIGH_RESOLUTION_PATH + "valid/")
 
 
 device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
@@ -156,7 +156,7 @@ class EDSR(torch.nn.Module):
     return x
 
 
-model = EDSR(channels = 32, body_layers_num = 12, low_resolution_size = LOW_RESOLUTION_WIDTH)
+model = EDSR(channels = 64, body_layers_num = 14, low_resolution_size = LOW_RESOLUTION_WIDTH)
 
 summary(model, input_size=(1, 3, 32, 32))
 
@@ -164,10 +164,11 @@ summary(model, input_size=(1, 3, 32, 32))
 
 criterion = torch.nn.L1Loss(size_average=False)
 
+model.to(device)
+
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 
 
-train_loss = []
 epochs = 15
 epoch_vec = [i for i in range(epochs)]
 for epoch in range(epochs):
@@ -183,8 +184,7 @@ for epoch in range(epochs):
     running_loss += loss.item()
 
   loss = running_loss / len(train_loader)
-  train_loss.append(loss)
   print('Epoch {} of {}, Train Loss: {:.4f}'.format(epoch+1, epochs, loss))
 
 
-torch.save(model.state_dict(), "super_resolution_model32.pt")
+torch.save(model.state_dict(), "super_resolution_model32_2.pt")

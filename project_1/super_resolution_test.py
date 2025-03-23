@@ -133,9 +133,10 @@ class EDSR(torch.nn.Module):
     return x
 
 
-model = EDSR(channels = 32, body_layers_num = 12, low_resolution_size = LOW_RESOLUTION_WIDTH)
-model.load_state_dict(torch.load("super_resolution_model32.pt", weights_only=True))
+model = EDSR(channels = 64, body_layers_num = 14, low_resolution_size = LOW_RESOLUTION_WIDTH)
+model.load_state_dict(torch.load("super_resolution_model32_2.pt", weights_only=True))
 model.eval()
+model.to(device)
 summary(model, input_size=(1, 3, 32, 32))
 
 if not os.path.exists(f"{DATASET_HIGH_RESOLUTION_PATH}generated/"):
@@ -144,10 +145,10 @@ if not os.path.exists(f"{DATASET_HIGH_RESOLUTION_PATH}generated/"):
 with torch.no_grad():
   for i,data in enumerate(valid_loader):
     image_lr, image_hr = data
-    image_lr, image_hr = image_lr.to(device), image_hr.to(device)
+    image_lr = image_lr.to(device)
     img_tensors = model(image_lr).cpu()
     for j, img_tensor in enumerate(torch.split(img_tensors, 1)):
-      img_tensor = img_tensor.squeeze(0).detach().cpu()
+      img_tensor = img_tensor.squeeze(0)
       img_numpy = img_tensor.numpy()
       cv2_image = numpy.transpose(img_numpy, (1, 2, 0))
       cv2_image = cv2.cvtColor(cv2_image, cv2.COLOR_RGB2BGR) * 255
